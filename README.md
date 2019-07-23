@@ -104,4 +104,32 @@ public class ClientContainer {
     }
 }
 ```
+>Instead of logging in i have use a simple name generator and used it in principal
+```java
+
+@Override
+public void registerStompEndpoints(StompEndpointRegistry registry) {
+    registry.addEndpoint("/ws").setHandshakeHandler(new RandomUsernameHandshakeHandler()).withSockJS();
+}
+
+class RandomUsernameHandshakeHandler extends DefaultHandshakeHandler {
+
+    final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    SecureRandom rnd = new SecureRandom();
+
+    public String generateString(int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        }
+        return sb.toString();
+    }
+
+    @Override
+    protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
+        return new UsernamePasswordAuthenticationToken(generateString(4), null);
+    }
+
+}
+```
 
